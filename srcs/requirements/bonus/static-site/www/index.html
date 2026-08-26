@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Inception Bonus Services</title>
+	<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+	<nav class="navbar">
+		<div class="container">
+			<div class="logo">
+				<h1>Inception</h1>
+				<p class="tagline">Docker Infrastructure</p>
+			</div>
+		</div>
+	</nav>
+
+	<main>
+		<div class="container">
+			<section class="hero">
+				<h2>Welcome to Inception Bonus Services</h2>
+				<p>A complete Docker infrastructure with production-ready services</p>
+			</section>
+
+			<section class="services">
+				<h3>Available Services</h3>
+				<div class="services-grid">
+					<div class="service-card">
+						<h4>🗄️ Redis Cache</h4>
+						<p>High-performance in-memory cache for WordPress</p>
+						<ul>
+							<li>Object caching</li>
+							<li>Session management</li>
+							<li>Data persistence</li>
+						</ul>
+					</div>
+
+					<div class="service-card">
+						<h4>📂 FTP Server</h4>
+						<p>Secure file transfer for WordPress content</p>
+						<ul>
+							<li>Passive mode enabled</li>
+							<li>User authentication</li>
+							<li>No anonymous access</li>
+						</ul>
+					</div>
+
+					<div class="service-card">
+						<h4>🌐 Static Website</h4>
+						<p>Fast static content delivery</p>
+						<ul>
+							<li>Nginx optimized</li>
+							<li>Gzip compression</li>
+							<li>Cache headers</li>
+						</ul>
+					</div>
+
+					<div class="service-card">
+						<h4>🗂️ Adminer</h4>
+						<p>Database management interface</p>
+						<ul>
+							<li>MySQL/MariaDB support</li>
+							<li>Web-based access</li>
+							<li>Secure connection</li>
+						</ul>
+					</div>
+
+					<div class="service-card">
+						<h4>🎛️ Portainer</h4>
+						<p>Container management & monitoring</p>
+						<ul>
+							<li>Visual container management</li>
+							<li>Real-time monitoring</li>
+							<li>Log viewing</li>
+						</ul>
+					</div>
+
+					<div class="service-card">
+						<h4>📊 WordPress</h4>
+						<p>Main application server</p>
+						<ul>
+							<li>PHP-FPM runtime</li>
+							<li>MariaDB database</li>
+							<li>SSL/TLS support</li>
+						</ul>
+					</div>
+				</div>
+			</section>
+
+			<section class="ports">
+				<h3>Service Ports</h3>
+				<div class="ports-list">
+					<div class="port-item">
+						<span class="port-name">HTTPS</span>
+						<span class="port-number">443</span>
+						<span class="port-desc">WordPress Nginx</span>
+					</div>
+					<div class="port-item">
+						<span class="port-name">Static Site</span>
+						<span class="port-number">8081</span>
+						<span class="port-desc">This page</span>
+					</div>
+					<div class="port-item">
+						<span class="port-name">Adminer</span>
+						<span class="port-number">8082</span>
+						<span class="port-desc">Database Management</span>
+					</div>
+					<div class="port-item">
+						<span class="port-name">Portainer</span>
+						<span class="port-number">9001</span>
+						<span class="port-desc">Container Management</span>
+					</div>
+					<div class="port-item">
+						<span class="port-name">Redis</span>
+						<span class="port-number">6379 (internal)</span>
+						<span class="port-desc">Cache Server</span>
+					</div>
+					<div class="port-item">
+						<span class="port-name">FTP</span>
+						<span class="port-number">21/21100-21110</span>
+						<span class="port-desc">File Transfer</span>
+					</div>
+				</div>
+			</section>
+
+			<section class="features">
+				<h3>Security Features</h3>
+				<ul class="features-list">
+					<li>✅ All services run in isolated containers</li>
+					<li>✅ Dedicated volumes for data persistence</li>
+					<li>✅ Docker network isolation</li>
+					<li>✅ Non-root user execution</li>
+					<li>✅ Health checks for reliability</li>
+					<li>✅ Environment variable configuration</li>
+					<li>✅ Proper resource limits</li>
+					<li>✅ Alpine Linux for minimal attack surface</li>
+				</ul>
+			</section>
+
+			<section class="info">
+				<h3>Infrastructure Info</h3>
+				<div class="info-box">
+					<p><strong>Docker Compose Network:</strong> inception_net (bridge)</p>
+					<p><strong>Architecture:</strong> Multi-container microservices</p>
+					<p><strong>Base Image:</strong> Alpine Linux 3.18</p>
+					<p><strong>Database:</strong> MariaDB 10.x</p>
+					<p><strong>Cache:</strong> Redis with persistence</p>
+					<p><strong>Updated:</strong> 2026</p>
+				</div>
+			</section>
+		</div>
+	</main>
+
+	<footer>
+		<div class="container">
+			<p>&copy; 2026 Inception Project. All services running in containers.</p>
+		</div>
+	</footer>
+</body>
+</html>
