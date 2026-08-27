@@ -1,0 +1,57 @@
+---
+- name: Create host persistent data directories
+  file:
+    path: "/home/{{ ansible_user }}/data/{{ item }}"
+    state: directory
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: '0755'
+  loop:
+    - mariadb
+    - wordpress
+    - redis
+    - ftp
+    - portainer
+
+- name: Create remote project deployment directory
+  file:
+    path: "/home/{{ ansible_user }}/cloud-1"
+    state: directory
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: '0755'
+
+- name: Copy srcs directory to remote instance
+  copy:
+    src: "{{ playbook_dir }}/../srcs/"
+    dest: "/home/{{ ansible_user }}/cloud-1/srcs/"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: 'preserve'
+
+- name: Copy Makefile to remote instance
+  copy:
+    src: "{{ playbook_dir }}/../Makefile"
+    dest: "/home/{{ ansible_user }}/cloud-1/Makefile"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: '0644'
+
+- name: Configure USER in remote .env
+  lineinfile:
+    path: "/home/{{ ansible_user }}/cloud-1/srcs/.env"
+    regexp: "^USER="
+    line: "USER={{ ansible_user }}"
+
+- name: Configure DATA_PATH in remote .env
+  lineinfile:
+    path: "/home/{{ ansible_user }}/cloud-1/srcs/.env"
+    regexp: "^DATA_PATH="
+    line: "DATA_PATH=/home/{{ ansible_user }}/data"
+
+- name: Set secure permissions on remote .env
+  file:
+    path: "/home/{{ ansible_user }}/cloud-1/srcs/.env"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: '0600'

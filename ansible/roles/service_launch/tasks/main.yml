@@ -1,0 +1,46 @@
+---
+- name: Build and start Docker Compose stack
+  command: docker compose -f srcs/docker-compose.yml --env-file srcs/.env up -d --build
+  args:
+    chdir: "/home/{{ ansible_user }}/cloud-1"
+  register: compose_output
+
+- name: Display Docker Compose build/up output
+  debug:
+    var: compose_output.stdout_lines
+
+- name: Wait for services to bootstrap
+  pause:
+    seconds: 20
+
+- name: Check container statuses
+  command: docker compose -f srcs/docker-compose.yml --env-file srcs/.env ps
+  args:
+    chdir: "/home/{{ ansible_user }}/cloud-1"
+  register: ps_output
+  changed_when: false
+
+- name: Display running containers
+  debug:
+    var: ps_output.stdout_lines
+
+- name: Test HTTP endpoint (Port 80)
+  uri:
+    url: "http://127.0.0.1"
+    validate_certs: false
+    status_code: [200, 301, 302]
+  register: http_test
+  retries: 5
+  delay: 5
+  until: http_test.status in [200, 301, 302]
+  ignore_errors: true
+
+- name: Test HTTPS endpoint (Port 443)
+  uri:
+    url: "https://127.0.0.1"
+    validate_certs: false
+    status_code: [200, 301, 302]
+  register: https_test
+  retries: 8
+  delay: 5
+  until: https_test.status in [200, 301, 302]

@@ -1,0 +1,11 @@
+---
+- name: Deploy Inception Infrastructure to Cloud Instances
+  hosts: webservers
+  become: yes
+
+  roles:
+    - role: common
+    - role: security
+    - role: docker
+    - role: app_deploy
+    - role: service_launch
