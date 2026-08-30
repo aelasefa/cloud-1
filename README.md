@@ -4,7 +4,8 @@
 [![Ansible](https://img.shields.io/badge/Ansible-2.15+-EE0000.svg?logo=ansible&logoColor=white)](https://www.ansible.com/)
 [![Ubuntu](https://img.shields.io/badge/Ubuntu-22.04%20LTS-E95420.svg?logo=ubuntu&logoColor=white)](https://ubuntu.com/)
 [![AWS](https://img.shields.io/badge/AWS-EC2%20Free%20Tier-FF9900.svg?logo=amazon-aws&logoColor=white)](https://aws.amazon.com/)
-[![Security](https://img.shields.io/badge/Security-UFW%20%7C%20TLS%201.3-success.svg)](#security-and-firewall)
+[![Security](https://img.shields.io/badge/Security-UFW%20%7C%20TLS%201.3-success.svg)](#-security-and-firewall)
+[![Domain](https://img.shields.io/badge/Domain-aelasefa.duckdns.org-brightgreen.svg)](https://aelasefa.duckdns.org)
 
 Automated, idempotent, multi-host cloud deployment of an **Inception** infrastructure (WordPress, MariaDB, Nginx, Redis, Adminer, FTP, Portainer, and Static Website) onto remote cloud instances using **Ansible** and **Docker Compose**.
 
@@ -28,7 +29,7 @@ Automated, idempotent, multi-host cloud deployment of an **Inception** infrastru
 ```
                                   [ INTERNET ]
                                        |
-                                       | HTTPS (443) / HTTP (80)
+                                       | DNS: aelasefa.duckdns.org (100.52.195.240)
                                        v
                      +-----------------------------------+
                      |      AWS Security Group / UFW     |
@@ -44,6 +45,7 @@ Automated, idempotent, multi-host cloud deployment of an **Inception** infrastru
           |                            |                            |
           v                            v                            v
   [ WordPress (FPM) ]             [ Adminer ]             [ Static Website ]
+    Path: /                         Path: /adminer          Path: /static/
           |
      +----+----+
      |         |
@@ -93,6 +95,8 @@ Automated, idempotent, multi-host cloud deployment of an **Inception** infrastru
 - **Full Automation**: 100% automated deployment using Ansible across fresh Ubuntu 22.04 LTS instances.
 - **Microservices Isolation**: 1 process per container connected through dedicated internal Docker networks.
 - **Port Restriction**: Only ports **22 (SSH)**, **80 (HTTP)**, and **443 (HTTPS)** are exposed to the public internet; internal service ports (3306, 6379, 9000, etc.) are strictly isolated.
+- **Unified Reverse Proxy Routing**: Adminer and Static Website are routed securely via Nginx subpaths over HTTPS.
+- **Automatic HTTP $\rightarrow$ HTTPS Redirection**: All HTTP (port 80) traffic is automatically redirected with status code 301 to secure HTTPS.
 - **Fault Tolerance & Auto-Restart**: Stack configured with `restart: unless-stopped` and systemd persistence.
 - **Data Persistence**: MariaDB databases, WordPress uploads, Redis cache, and Portainer data are mounted to host storage volumes (`/data`).
 - **Parallel Deployment**: Ansible inventory supports deploying to single or multiple remote servers concurrently.
@@ -102,11 +106,12 @@ Automated, idempotent, multi-host cloud deployment of an **Inception** infrastru
 
 ## ⚙️ Prerequisites
 
-1. **Remote Cloud Server**: An AWS EC2 instance (or any VPS) running **Ubuntu 22.04 LTS** with SSH access.
-2. **Local Machine Requirements**:
+1. **Remote Cloud Server**: An AWS EC2 instance (or any VPS) running **Ubuntu 22.04 LTS** (`100.52.195.240`) with SSH access.
+2. **Domain Name**: Configured on DuckDNS (`aelasefa.duckdns.org`).
+3. **Local Machine Requirements**:
    - `python3` (v3.8+)
    - `ansible` (v2.14+)
-   - `ssh` client with your cloud private key (`.pem`)
+   - `ssh` client with your cloud private key (`cloud1-key.pem`)
 
 ---
 
@@ -114,7 +119,7 @@ Automated, idempotent, multi-host cloud deployment of an **Inception** infrastru
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/your-username/cloud-1.git
+git clone https://github.com/aelasefa/cloud-1.git
 cd cloud-1
 ```
 
@@ -122,30 +127,42 @@ cd cloud-1
 Edit `ansible/inventory.ini` with your remote server IP and SSH key:
 ```ini
 [webservers]
-server1 ansible_host=YOUR_EC2_PUBLIC_IP ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/your-key.pem
+server1 ansible_host=100.52.195.240 ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/cloud1-key.pem
 
 [webservers:vars]
 ansible_python_interpreter=/usr/bin/python3
 ```
 
 ### 3. Configure Environment Variables
-Copy and customize the `.env` configuration in `srcs/.env`:
+Customize the `.env` configuration in `srcs/.env`:
 ```bash
-DOMAIN_NAME=yourdomain.duckdns.org
+USER=ubuntu
 DATA_PATH=/home/ubuntu/data
+DOMAIN_NAME=aelasefa.duckdns.org
+
+# MariaDB Credentials
+MYSQL_HOST=mariadb
 MYSQL_DATABASE=wordpress
 MYSQL_USER=wpuser
-MYSQL_PASSWORD=SecurePassword123!
-MYSQL_ROOT_PASSWORD=SecureRootPassword123!
-WP_ADMIN_USER=admin_user
-WP_ADMIN_PASS=AdminPassword123!
-WP_ADMIN_EMAIL=admin@yourdomain.duckdns.org
-WP_USER_USER=editor_user
-WP_USER_PASS=EditorPassword123!
-WP_USER_EMAIL=editor@yourdomain.duckdns.org
-REDIS_PASSWORD=RedisSecret123!
-FTP_USER=ftpuser
-FTP_PASSWORD=FtpSecret123!
+MYSQL_PASSWORD=WpPassword123!
+MYSQL_ROOT_PASSWORD=RootPassword123!
+
+# WordPress Admin & User
+WP_TITLE=Inception
+WP_ADMIN_USER=ayelasef
+WP_ADMIN_PASS=Aymanelasefar@1234
+WP_ADMIN_EMAIL=admin@aelasefa.duckdns.org
+WP_USER_USER=ayman
+WP_USER_PASS=Aymanelasefar@123
+WP_USER_EMAIL=user@aelasefa.duckdns.org
+
+# Redis & FTP
+REDIS_HOST=redis
+REDIS_PORT=6379
+REDIS_PASSWORD=RedisPassword123!
+FTP_USER=ayelasef
+FTP_PASSWORD=FtpPassword123!
+FTP_ROOT=/var/www/html
 ```
 
 ### 4. Deploy with Ansible
@@ -158,12 +175,13 @@ ansible-playbook -i ansible/inventory.ini ansible/playbook.yml
 
 ## 🌐 Services & Routing
 
-| Service | Protocol / Port | External Access Path | Internal Port | Description |
+| Service | Protocol / Port | External Access URL | Internal Port | Description |
 | :--- | :--- | :--- | :--- | :--- |
-| **Nginx** | HTTPS / 443 | `https://<domain>/` | 443 | TLS Gateway & Reverse Proxy |
-| **WordPress** | FastCGI / PHP | `https://<domain>/` | 9000 | WordPress Blog (PHP 7.4-FPM) |
-| **Adminer** | HTTP (Internal) | `https://<domain>/adminer` | 8082 | Database Admin Interface |
-| **Static Site** | HTTP (Internal) | `https://<domain>/static` | 8081 | Static HTML5/CSS3 Showcase |
+| **Nginx** | HTTPS / 443 | `https://aelasefa.duckdns.org/` | 443 | TLS Gateway & Reverse Proxy |
+| **WordPress** | FastCGI / PHP | `https://aelasefa.duckdns.org/` | 9000 | WordPress Blog (PHP 7.4-FPM) |
+| **Adminer** | HTTP (Internal) | `https://aelasefa.duckdns.org/adminer` | 8082 | Database Admin Interface |
+| **Static Site** | HTTP (Internal) | `https://aelasefa.duckdns.org/static/` | 8081 | Static HTML5/CSS3 Showcase |
+| **HTTP Redirect** | HTTP / 80 | `http://aelasefa.duckdns.org/` $\rightarrow$ 301 | 80 | Enforces HTTPS |
 | **MariaDB** | TCP (Internal) | *Internal Network Only* | 3306 | SQL Relational Database |
 | **Redis** | TCP (Internal) | *Internal Network Only* | 6379 | In-memory Object Cache |
 | **Portainer** | HTTP (Internal) | *Internal Network Only* | 9000 | Container Monitoring |
@@ -213,3 +231,4 @@ make fclean
 ## 👤 Author
 - **GitHub**: [@aelasefa](https://github.com/aelasefa)
 - **42 Intra**: `ayelasef / aelasefa`
+- **Domain**: [aelasefa.duckdns.org](https://aelasefa.duckdns.org)
