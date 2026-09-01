@@ -1,0 +1,23 @@
+# Environment files containing credentials
+.env
+*.env
+**/.env
+srcs/.env
+*.env.local
+
+# SSH Keys and secrets
+*.pem
+*.key
+*.crt
+id_rsa*
+secrets/
+
+# OS and editor files
+.DS_Store
+.vscode/
+.idea/
+*.swp
+*~
+
+# Ansible retry files
+*.retry
